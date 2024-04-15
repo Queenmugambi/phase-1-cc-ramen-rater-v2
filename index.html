@@ -1,56 +1,100 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Ramen Rater</title>
-  <link rel="stylesheet" type="text/css" href="styles.css" />
-  <script defer type="module" src="./src/index.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ramen Rating App</title>
 </head>
-
 <body>
-  <header>
-    <h3>Ramen Rater</h3>
-  </header>
+  <h1>Ramen Rating App</h1>
 
-  
-  <div id="ramen-menu">
-  
-  </div>
-
-
-  <div id="ramen-detail">
-    <img class="detail-image" src="./assets/image-placeholder.jpg" alt="Insert Name Here" />
-    <h2 class="name">Insert Name Here</h2>
-    <h3 class="restaurant">Insert Restaurant Here</h3>
-  </div>
-
-  <h3>Rating:</h3>
-  <p>
-    <span id='rating-display'>Insert rating here</span> / 10
-  </p>
-  <h3>Comment:</h3>
-  <p id='comment-display'>
-    Insert comment here
-  </p>
-
-
+  <!-- Form to add new ramen -->
   <form id="new-ramen">
-    <h4>Add New Ramen</h4>
-    <label for="new-name">Name: </label>
-    <input type="text" name="name" id="new-name" />
-    <label for="new-restaurant">Restaurant: </label>
-    <input type="text" name="restaurant" id="new-restaurant" />
-    <label for="new-image">Image: </label>
-    <input type="text" name="image" id="new-image" />
-    <label for="new-rating">Rating: </label>
-    <input type="number" name="rating" id="new-rating" />
-    <label for="new-comment">Comment: </label>
-    <textarea name="new-comment" name="new-comment" id="new-comment"></textarea>
-    <input type="submit" id='submit-button' value="Create" />
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required><br><br>
+
+    <label for="image">Image URL:</label>
+    <input type="text" id="image" name="image" required><br><br>
+
+    <label for="rating">Rating:</label>
+    <input type="number" id="rating" name="rating" min="1" max="5" required><br><br>
+
+    <label for="comment">Comment:</label><br>
+    <textarea id="comment" name="comment" required></textarea><br><br>
+
+    <button type="submit">Add Ramen</button>
   </form>
 
-</body>
+  <!-- Container to display ramen images -->
+  <div id="ramen-menu"></div>
 
+  <!-- Container to display ramen details -->
+  <div id="ramen-detail">
+    <!-- Ramen details will be displayed here -->
+  </div>
+
+  <!-- JavaScript code -->
+  <script>
+    // Define the URL for your local API
+    const API_URL = 'http://localhost:3000/ramen';
+
+    // Function to display all ramen images
+    async function displayRamens() {
+      const response = await fetch(API_URL);
+      const ramens = await response.json();
+      
+      const ramenMenu = document.getElementById('ramen-menu');
+      ramenMenu.innerHTML = ''; // Clear previous content
+      
+      ramens.forEach(ramen => {
+        const img = document.createElement('img');
+        img.src = ramen.image;
+        img.alt = ramen.name;
+        img.addEventListener('click', () => handleClick(ramen));
+        ramenMenu.appendChild(img);
+      });
+    }
+
+    // Function to handle click on a ramen image
+    function handleClick(ramen) {
+      const ramenDetail = document.getElementById('ramen-detail');
+      ramenDetail.innerHTML = `<p>${ramen.comment}</p><p>Rating: ${ramen.rating}</p>`;
+    }
+
+    // Function to add submit listener to the form
+    function addSubmitListener() {
+      const form = document.getElementById('new-ramen');
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        
+        const formData = new FormData(form);
+        const newRamen = {
+          name: formData.get('name'),
+          image: formData.get('image'),
+          rating: formData.get('rating'),
+          comment: formData.get('comment')
+        };
+
+        // Display the new ramen in the menu
+        const ramenMenu = document.getElementById('ramen-menu');
+        const img = document.createElement('img');
+        img.src = newRamen.image;
+        img.alt = newRamen.name;
+        img.addEventListener('click', () => handleClick(newRamen));
+        ramenMenu.appendChild(img);
+      });
+    }
+
+    // Main function to start the program logic
+    function main() {
+      displayRamens();
+      addSubmitListener();
+    }
+
+    // Invoke main function after DOM has fully loaded
+    document.addEventListener('DOMContentLoaded', main);
+  </script>
+</body>
 </html>
+
 
